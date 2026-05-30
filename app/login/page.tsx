@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "@/lib/session-provider";
+import GoogleSignInButton from "@/lib/google-signin";
 
 export default function LoginPage() {
   const { signInEmail, signUpEmail, signInGoogle } = useSession();
@@ -24,18 +25,14 @@ export default function LoginPage() {
       if (res.error) setError(res.error);
     } else {
       const res = await signUpEmail(email, password, name || undefined);
-      if (res.error === "VERIFY_REQUIRED") {
-        setVerifyMsg(true);
-      } else if (res.error) {
-        setError(res.error);
-      }
+      if (res.error === "VERIFY_REQUIRED") setVerifyMsg(true);
+      else if (res.error) setError(res.error);
     }
     setLoading(false);
   }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Panel imagen */}
       <div className="hidden lg:flex relative overflow-hidden bg-[#4A6E47]">
         <div className="absolute inset-0 opacity-[0.12]">
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -58,7 +55,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Panel formulario */}
       <div className="flex items-center justify-center p-8 lg:p-0">
         <div className="max-w-sm w-full space-y-6">
           <div className="text-center lg:text-left">
@@ -127,20 +123,18 @@ export default function LoginPage() {
           </form>
 
           <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#C9B99A]"></div></div>
-            <div className="relative flex justify-center text-xs"><span className="bg-[#F7F4EF] px-2 text-[#9E8F7B]">o</span></div>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#C9B99A]" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[#F7F4EF] px-2 text-[#9E8F7B]">o</span>
+            </div>
           </div>
 
-          <button
-            onClick={() => signInGoogle()}
-            className="w-full group rounded border border-[#C9B99A] bg-[#F7F4EF] px-5 py-3 text-[#1A1510] hover:border-[#4A6E47] hover:shadow-sm transition-all duration-200 flex items-center justify-center gap-3"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-              <path d="M17.6 9.2c0-.7-.1-1.4-.2-2H9v3.7h4.8c-.2 1.3-.9 2.4-2 3.1v2.6h3.2c1.9-1.8 3-4.4 3-7.4z" fill="#4285F4"/>
-              <path d="M9 18c2.7 0 4.9-.9 6.6-2.4l-3.2-2.6c-.9.6-2 1-3.4 1-2.6 0-4.8-1.7-5.6-4.1H.3v2.7C2 15.9 5.2 18 9 18z" fill="#34A853"/>
-            </svg>
-            <span className="font-medium">Google</span>
-          </button>
+          <GoogleSignInButton
+            text={mode === "login" ? "signin_with" : "signup_with"}
+            onToken={(token) => signInGoogle(token)}
+          />
 
           <p className="text-center text-sm text-[#6B5E4E]">
             {mode === "login" ? (

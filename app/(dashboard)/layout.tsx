@@ -1,14 +1,33 @@
-import { getSession } from "@/lib/insforge-server";
-import { SignOutButton } from "./sign-out-button";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function DashboardLayout({
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/session-provider";
+import { SignOutButton } from "./sign-out-button";
+
+export default function DashboardLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  const session = await getSession();
-  if (!session?.user) redirect("/login");
+}) {
+  const { user, loading } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-[#1A1510]">
+        <p>Cargando…</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen flex bg-[#F7F4EF]">
@@ -27,7 +46,7 @@ export default async function DashboardLayout({
         </nav>
 
         <div className="mt-auto pt-6 border-t border-[#E8DCC4]">
-          <p className="text-sm text-[#6B5E4E] mb-3 truncate">{session.user.name}</p>
+          <p className="text-sm text-[#6B5E4E] mb-3 truncate">{user.name || user.email}</p>
           <SignOutButton />
         </div>
       </aside>

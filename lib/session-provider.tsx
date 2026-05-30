@@ -15,7 +15,7 @@ type SessionCtx = {
   loading: boolean;
   signInEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpEmail: (email: string, password: string, name?: string) => Promise<{ error?: string }>;
-  signInGoogle: () => Promise<void>;
+  signInGoogle: (idToken: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 };
 
@@ -46,21 +46,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function signInEmail(email: string, password: string) {
-    const { data, error } = await insforge.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await insforge.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message || "Credenciales inválidas" };
     if (data) await refreshSession();
     return {};
   }
 
   async function signUpEmail(email: string, password: string, name?: string) {
-    const { data, error } = await insforge.auth.signUp({
-      email,
-      password,
-      name,
-    });
+    const { data, error } = await insforge.auth.signUp({ email, password, name });
     if (error) return { error: error.message || "Error al registrarse" };
     if (data?.requireEmailVerification) {
       return { error: "VERIFY_REQUIRED" };
@@ -69,12 +62,27 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return {};
   }
 
-  async function signInGoogle() {
-    const redirectTo = `${window.location.origin}/api/auth/callback`;
-    await insforge.auth.signInWithOAuth({
+  async function signInGoogle(idToken: string) {
+    const { data, error } = await insforge.auth.signInWithIdToken({
       provider: "google",
-      redirectTo,
+      token: idToken,
     });
+    if (error) return { error: error.message || "Error con Google" };
+    if (data) {
+      await refreshSession();
+      try {
+        const token = (insforge as any).auth?.tokenManager?.getToken?.() ||
+                      (insforge as any)._token;
+        if (token) {
+          await fetch("/api/auth/set-cookie", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          });
+        }
+      } catch {}
+    }
+    return {};
   }
 
   async function signOutUser() {
