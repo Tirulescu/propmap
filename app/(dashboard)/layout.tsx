@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 import { SignOutButton } from "./sign-out-button";
 import { redirect } from "next/navigation";
 
@@ -7,7 +7,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) redirect("/login");
 
   return (

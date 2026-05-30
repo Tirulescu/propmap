@@ -2,14 +2,14 @@
 import { db } from "@/lib/db";
 import { properties } from "@/lib/db/schema";
 import { nanoid } from "nanoid";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function createProperty(formData: FormData) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) throw new Error("No autenticado");
-  const userId = (session.user as any).id as string;
+  const userId = session.user.id;
 
   const type = formData.get("type") as string;
   const name = formData.get("name") as string;

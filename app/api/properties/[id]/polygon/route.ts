@@ -2,13 +2,13 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { properties } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
   const { id } = await params;

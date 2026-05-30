@@ -2,14 +2,14 @@ import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { propertyShares } from "@/lib/db/schema";
 import { nanoid } from "nanoid";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
 
   const body = await req.json();
-  const userId = (session.user as any).id as string;
+  const userId = session.user.id;
   const token = nanoid(24);
 
   await db.insert(propertyShares).values({

@@ -2,12 +2,12 @@ import { db } from "@/lib/db";
 import { properties, projections } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 import { redirect } from "next/navigation";
 import PropertyDetail from "./property-detail";
 
 export default async function PropertyPage({ params }: { params: { id: string } }) {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) redirect("/login");
 
   const [property] = await db
@@ -17,7 +17,7 @@ export default async function PropertyPage({ params }: { params: { id: string } 
 
   if (!property) notFound();
 
-  const userId = (session.user as any).id as string;
+  const userId = session.user.id;
   const isOwner = property.ownerId === userId;
 
   const projectionsList = await db

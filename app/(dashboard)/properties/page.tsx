@@ -1,14 +1,14 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/lib/insforge-server";
 import { db } from "@/lib/db";
 import { properties } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 
 export default async function PropertiesPage() {
-  const session = await auth();
+  const session = await getSession();
   if (!session?.user) redirect("/login");
 
-  const userId = (session.user as any).id as string;
+  const userId = session.user.id;
   const list = await db
     .select()
     .from(properties)
