@@ -93,3 +93,34 @@ export const propertyShares = pgTable("property_shares", {
   expiresAt: timestamp("expires_at", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
+
+export const insforgeFiles = pgTable("insforge_files", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  propertyId: varchar("property_id", { length: 255 })
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
+  insforgeFileId: text("insforge_file_id").notNull(),
+  name: text("name").notNull(),
+  url: text("url"),
+  status: text("status").notNull().default("PENDING"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const insforgeChatThreads = pgTable("insforge_chat_threads", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  propertyId: varchar("property_id", { length: 255 })
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
+  title: text("title"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const insforgeMessages = pgTable("insforge_messages", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  threadId: varchar("thread_id", { length: 255 })
+    .notNull()
+    .references(() => insforgeChatThreads.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});

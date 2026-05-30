@@ -3,12 +3,20 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import PropertyFinance from "./property-finance";
+import InsForgePanel from "./insforge-panel";
 
-// Dynamically import the map to avoid SSR issues
 const PropertyMapDynamic = dynamic(() => import("./property-map"), {
   ssr: false,
   loading: () => <p>Cargando mapa...</p>,
 });
+
+const tabs = [
+  { key: "info", label: "Información" },
+  { key: "map", label: "Mapa" },
+  { key: "finance", label: "Finanzas" },
+  { key: "insforge", label: "InsForge" },
+  { key: "share", label: "Compartir" },
+] as const;
 
 export default function PropertyDetail({
   property,
@@ -19,7 +27,7 @@ export default function PropertyDetail({
   projections: any[];
   isOwner: boolean;
 }) {
-  const [tab, setTab] = useState<"info" | "map" | "finance" | "share">("info");
+  const [tab, setTab] = useState<"info" | "map" | "finance" | "share" | "insforge">("info");
 
   return (
     <div>
@@ -33,18 +41,15 @@ export default function PropertyDetail({
       </div>
 
       <div className="flex gap-4 border-b mb-6">
-        {(["info", "map", "finance", "share"] as const).map((t) => (
+        {tabs.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={t.key}
+            onClick={() => setTab(t.key as any)}
             className={`pb-2 px-2 font-medium ${
-              tab === t ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
+              tab === t.key ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
             }`}
           >
-            {t === "info" && "Información"}
-            {t === "map" && "Mapa"}
-            {t === "finance" && "Finanzas"}
-            {t === "share" && "Compartir"}
+            {t.label}
           </button>
         ))}
       </div>
@@ -109,6 +114,10 @@ export default function PropertyDetail({
 
       {tab === "finance" && (
         <PropertyFinance propertyId={property.id} projections={projections} />
+      )}
+
+      {tab === "insforge" && (
+        <InsForgePanel propertyId={property.id} />
       )}
 
       {tab === "share" && isOwner && <SharePanel propertyId={property.id} />}
