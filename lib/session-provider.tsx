@@ -15,7 +15,7 @@ type SessionCtx = {
   loading: boolean;
   signInEmail: (email: string, password: string) => Promise<{ error?: string }>;
   signUpEmail: (email: string, password: string, name?: string) => Promise<{ error?: string }>;
-  signInGoogle: (idToken: string) => Promise<{ error?: string }>;
+  signInGoogle: () => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
 };
 
@@ -48,26 +48,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   async function signInEmail(email: string, password: string) {
     const { data, error } = await insforge.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message || "Credenciales inválidas" };
-    if (data) await refreshSession();
-    return {};
-  }
-
-  async function signUpEmail(email: string, password: string, name?: string) {
-    const { data, error } = await insforge.auth.signUp({ email, password, name });
-    if (error) return { error: error.message || "Error al registrarse" };
-    if (data?.requireEmailVerification) {
-      return { error: "VERIFY_REQUIRED" };
-    }
-    if (data) await refreshSession();
-    return {};
-  }
-
-  async function signInGoogle(idToken: string) {
-    const { data, error } = await insforge.auth.signInWithIdToken({
-      provider: "google",
-      token: idToken,
-    });
-    if (error) return { error: error.message || "Error con Google" };
     if (data) {
       await refreshSession();
       try {
@@ -81,6 +61,31 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } catch {}
+    }
+    return {};
+  }
+
+  async function signUpEmail(email: string, password: string, name?: string) {
+    const { data, error } = await insforge.auth.signUp({ email, password, name });
+    if (error) return { error: error.message || "Error al registrarse" };
+    if (data?.requireEmailVerification) {
+      return { error: "VERIFY_REQUIRED" };
+    }
+    if (data) await refreshSession();
+    return {};
+  }
+
+  async function signInGoogle() {
+    const redirectTo = typeof window !== "undefined"
+      ? `${window.location.origin}/api/auth/callback`
+      : undefined;
+    const { data, error } = await insforge.auth.signInWithOAuth({
+      provider: "google",
+      redirectTo,
+    });
+    if (error) return { error: error.message || "Error al iniciar Google" };
+    if (data?.url) {
+      window.location.href = data.url;
     }
     return {};
   }
