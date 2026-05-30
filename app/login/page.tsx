@@ -132,8 +132,15 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => signInGoogle()}
-            className="w-full rounded border border-[#C9B99A] bg-white text-[#1A1510] px-5 py-2.5 hover:bg-[#F7F4EF] transition-colors flex items-center justify-center gap-2"
+            onClick={async () => {
+              setError("");
+              setLoading(true);
+              const res = await signInGoogle();
+              if (res.error) setError(res.error);
+              setLoading(false);
+            }}
+            disabled={loading}
+            className="w-full rounded border border-[#C9B99A] bg-white text-[#1A1510] px-5 py-2.5 hover:bg-[#F7F4EF] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path

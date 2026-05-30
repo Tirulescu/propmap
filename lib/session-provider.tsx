@@ -77,17 +77,28 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   async function signInGoogle() {
     const redirectTo = typeof window !== "undefined"
-      ? `${window.location.origin}/api/auth/callback`
+      ? `${window.location.origin}/properties`
       : undefined;
-    const { data, error } = await insforge.auth.signInWithOAuth({
-      provider: "google",
-      redirectTo,
-    });
-    if (error) return { error: error.message || "Error al iniciar Google" };
-    if (data?.url) {
-      window.location.href = data.url;
+    try {
+      const { data, error } = await insforge.auth.signInWithOAuth({
+        provider: "google",
+        redirectTo,
+        skipBrowserRedirect: true,
+      });
+      if (error) {
+        console.error("[signInGoogle] SDK error:", error);
+        return { error: error.message || "Error al iniciar Google" };
+      }
+      if (data?.url) {
+        console.log("[signInGoogle] redirecting to:", data.url);
+        window.location.href = data.url;
+        return {};
+      }
+      return { error: "No se recibió URL de redirección" }  ;
+    } catch (e: any) {
+      console.error("[signInGoogle] exception:", e);
+      return { error: e.message || "Error inesperado con Google" };
     }
-    return {};
   }
 
   async function signOutUser() {
