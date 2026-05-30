@@ -1,7 +1,5 @@
 import { getSession } from "@/lib/insforge-server";
-import { db } from "@/lib/db";
-import { properties } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { insforge } from "@/lib/db";
 import { redirect } from "next/navigation";
 
 export default async function PropertiesPage() {
@@ -9,10 +7,15 @@ export default async function PropertiesPage() {
   if (!session?.user) redirect("/login");
 
   const userId = session.user.id;
-  const list = await db
-    .select()
-    .from(properties)
-    .where(eq(properties.ownerId, userId));
+  const { data: list, error } = await insforge.database
+    .from('properties')
+    .select('*')
+    .eq('owner_id', userId);
+
+  if (error) {
+    console.error("Error fetching properties:", error);
+    throw new Error(error.message);
+  }
 
   return (
     <div>
@@ -21,7 +24,7 @@ export default async function PropertiesPage() {
         <a href="/properties/new" className="rounded bg-blue-600 px-3 py-2 text-white">+ Nueva</a>
       </div>
 
-      {list.length === 0 ? (
+      {!list || list.length === 0 ? (
         <p className="text-gray-500">No tienes propiedades registradas.</p>
       ) : (
         <div className="grid gap-4">

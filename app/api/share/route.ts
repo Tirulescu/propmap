@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
-import { db } from "@/lib/db";
-import { propertyShares } from "@/lib/db/schema";
+import { insforge } from "@/lib/db";
 import { nanoid } from "nanoid";
 import { getSession } from "@/lib/insforge-server";
 
@@ -12,13 +11,16 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id;
   const token = nanoid(24);
 
-  await db.insert(propertyShares).values({
+  const { error } = await insforge.database.from("property_shares").insert({
     id: nanoid(12),
-    propertyId: body.propertyId,
-    sharedById: userId,
+    property_id: body.propertyId,
+    shared_by_id: userId,
     token,
     role: body.role || "VIEWER",
   });
 
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
   return Response.json({ token });
 }

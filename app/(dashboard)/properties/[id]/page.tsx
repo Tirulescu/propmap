@@ -1,6 +1,4 @@
-import { db } from "@/lib/db";
-import { properties, projections } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { insforge } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/insforge-server";
 import { redirect } from "next/navigation";
@@ -10,25 +8,30 @@ export default async function PropertyPage({ params }: { params: { id: string } 
   const session = await getSession();
   if (!session?.user) redirect("/login");
 
-  const [property] = await db
-    .select()
-    .from(properties)
-    .where(eq(properties.id, params.id));
+  const { data: property, error: propErr } = await insforge.database
+    .from('properties')
+    .select('*')
+    .eq('id', params.id)
+    .maybeSingle();
 
-  if (!property) notFound();
+  if (propErr || !property) notFound();
 
   const userId = session.user.id;
-  const isOwner = property.ownerId === userId;
+  const isOwner = property.owner_id === userId;
 
-  const projectionsList = await db
-    .select()
-    .from(projections)
-    .where(eq(projections.propertyId, params.id));
+  const { data: projectionsList, error: projErr } = await insforge.database
+    .from('projections')
+    .select('*')
+    .eq('property_id', params.id);
+
+  if (projErr) {
+    console.error("Error fetching projections:", projErr);
+  }
 
   return (
     <PropertyDetail
       property={property}
-      projections={projectionsList}
+      projections={projectionsList || []}
       isOwner={isOwner}
     />
   );

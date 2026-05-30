@@ -1,5 +1,6 @@
 "use client";
 
+import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import type { Map, Polygon } from "leaflet";
 
@@ -21,8 +22,6 @@ export default function PropertyMap({ lat, lng, geoPolygon, propertyId }: Proper
 
     async function init() {
       const L = await import("leaflet");
-
-      await import("leaflet/dist/leaflet.css");
 
       const map = L.map(mapRef.current!).setView([lat, lng], 14);
       leafletMap.current = map;

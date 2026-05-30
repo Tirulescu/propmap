@@ -1,7 +1,5 @@
 import { NextRequest } from "next/server";
-import { db } from "@/lib/db";
-import { properties } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { insforge } from "@/lib/db";
 import { getSession } from "@/lib/insforge-server";
 
 export async function POST(
@@ -13,10 +11,13 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  await db
-    .update(properties)
-    .set({ geoPolygon: body.polygon })
-    .where(eq(properties.id, id));
+  const { error } = await insforge.database
+    .from("properties")
+    .update({ geo_polygon: body.polygon })
+    .eq("id", id);
 
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
   return Response.json({ ok: true });
 }

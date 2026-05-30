@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
-import { db } from "@/lib/db";
-import { projections } from "@/lib/db/schema";
+import { insforge } from "@/lib/db";
 import { nanoid } from "nanoid";
 import { getSession } from "@/lib/insforge-server";
 
@@ -13,16 +12,19 @@ export async function POST(
 
   const { id } = await params;
   const body = await req.json();
-  await db.insert(projections).values({
+  const { error } = await insforge.database.from("projections").insert({
     id: nanoid(12),
-    propertyId: id,
+    property_id: id,
     year: body.year ?? new Date().getFullYear(),
     month: body.month ?? 1,
     type: body.type,
     category: body.category,
-    amount: String(body.amount),
+    amount: body.amount,
     description: body.description || null,
   });
 
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
   return Response.json({ ok: true });
 }

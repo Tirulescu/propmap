@@ -1,28 +1,30 @@
-import { db } from "@/lib/db";
-import { properties, propertyShares, projections } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { insforge } from "@/lib/db";
 import { notFound } from "next/navigation";
 
 export default async function SharePage({ params }: { params: { token: string } }) {
-  const [share] = await db
-    .select()
-    .from(propertyShares)
-    .where(eq(propertyShares.token, params.token));
+  const { data: share } = await insforge.database
+    .from("property_shares")
+    .select("*")
+    .eq("token", params.token)
+    .maybeSingle();
 
   if (!share) notFound();
-  if (share.expiresAt && new Date(share.expiresAt) < new Date()) notFound();
+  if (share.expires_at && new Date(share.expires_at) < new Date()) notFound();
 
-  const [property] = await db
-    .select()
-    .from(properties)
-    .where(eq(properties.id, share.propertyId));
+  const { data: property } = await insforge.database
+    .from("properties")
+    .select("*")
+    .eq("id", share.property_id)
+    .maybeSingle();
 
   if (!property) notFound();
 
-  const projectionsList = await db
-    .select()
-    .from(projections)
-    .where(eq(projections.propertyId, property.id));
+  const { data: projectionsList } = await insforge.database
+    .from("projections")
+    .select("*")
+    .eq("property_id", property.id);
+
+  const projectionsData = projectionsList || [];
 
   return (
     <div className="min-h-screen p-6 max-w-3xl mx-auto">
@@ -34,10 +36,10 @@ export default async function SharePage({ params }: { params: { token: string } 
 
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div><strong>Dirección:</strong> {property.address || "—"}</div>
-          <div><strong>Catastro:</strong> {property.catastroRef || "—"}</div>
-          {property.catastroUrl && (
+          <div><strong>Catastro:</strong> {property.catastro_ref || "—"}</div>
+          {property.catastro_url && (
             <div className="col-span-2">
-              <a href={property.catastroUrl} target="_blank" className="text-blue-600 underline">Ver ficha catastral</a>
+              <a href={property.catastro_url} target="_blank" className="text-blue-600 underline">Ver ficha catastral</a>
             </div>
           )}
         </div>
@@ -45,23 +47,23 @@ export default async function SharePage({ params }: { params: { token: string } 
         {property.type === "MONTE" && (
           <div className="border rounded p-4 bg-gray-50 mb-4 text-sm">
             <h3 className="font-semibold mb-2">Monte</h3>
-            <div>Plantado: {property.plantedDate ? new Date(property.plantedDate).toLocaleDateString() : "—"}</div>
+            <div>Plantado: {property.planted_date ? new Date(property.planted_date).toLocaleDateString() : "—"}</div>
             <div>Especie: {property.species || "—"}</div>
-            <div>Última tala: {property.lastHarvestDate ? new Date(property.lastHarvestDate).toLocaleDateString() : "—"}</div>
-            <div>Ganancia: {property.lastHarvestProfit ? `€${property.lastHarvestProfit}` : "—"}</div>
+            <div>Última tala: {property.last_harvest_date ? new Date(property.last_harvest_date).toLocaleDateString() : "—"}</div>
+            <div>Ganancia: {property.last_harvest_profit ? `€${property.last_harvest_profit}` : "—"}</div>
           </div>
         )}
 
         {(property.type === "PISO" || property.type === "CASA") && (
           <div className="border rounded p-4 bg-gray-50 mb-4 text-sm">
             <h3 className="font-semibold mb-2">Alquiler</h3>
-            <div>Precio: {property.rentalPrice ? `€${property.rentalPrice}/mes` : "—"}</div>
-            <div>Inquilino: {property.tenantName || "—"}</div>
-            <div>Contrato: {property.leaseStart ? new Date(property.leaseStart).toLocaleDateString() : "—"} — {property.leaseEnd ? new Date(property.leaseEnd).toLocaleDateString() : "—"}</div>
+            <div>Precio: {property.rental_price ? `€${property.rental_price}/mes` : "—"}</div>
+            <div>Inquilino: {property.tenant_name || "—"}</div>
+            <div>Contrato: {property.lease_start ? new Date(property.lease_start).toLocaleDateString() : "—"} — {property.lease_end ? new Date(property.lease_end).toLocaleDateString() : "—"}</div>
           </div>
         )}
 
-        {projectionsList.length > 0 && (
+        {projectionsData.length > 0 && (
           <div>
             <h3 className="font-semibold mb-2">Finanzas</h3>
             <div className="border rounded overflow-x-auto">
@@ -75,7 +77,7 @@ export default async function SharePage({ params }: { params: { token: string } 
                   </tr>
                 </thead>
                 <tbody>
-                  {projectionsList.map((p) => (
+                  {projectionsData.map((p) => (
                     <tr key={p.id} className={`border-t ${p.type === "INCOME" ? "text-green-700" : "text-red-700"}`}>
                       <td className="px-3 py-2">{p.category}</td>
                       <td className="px-3 py-2">{p.type === "INCOME" ? "Ingreso" : "Gasto"}</td>

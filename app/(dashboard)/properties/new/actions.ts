@@ -1,6 +1,5 @@
 "use server";
-import { db } from "@/lib/db";
-import { properties } from "@/lib/db/schema";
+import { insforge } from "@/lib/db";
 import { nanoid } from "nanoid";
 import { getSession } from "@/lib/insforge-server";
 import { revalidatePath } from "next/cache";
@@ -16,28 +15,30 @@ export async function createProperty(formData: FormData) {
   if (!name || !type) throw new Error("Nombre y tipo son obligatorios");
 
   const id = nanoid(12);
-  await db.insert(properties).values({
+  const { error } = await insforge.database.from('properties').insert({
     id,
-    ownerId: userId,
-    type: type as any,
+    owner_id: userId,
+    type,
     name,
     address: (formData.get("address") as string) || null,
-    locationLat: formData.get("locationLat") ? parseFloat(formData.get("locationLat") as string) : null,
-    locationLng: formData.get("locationLng") ? parseFloat(formData.get("locationLng") as string) : null,
-    catastroRef: (formData.get("catastroRef") as string) || null,
-    catastroUrl: (formData.get("catastroUrl") as string) || null,
-    plantedDate: formData.get("plantedDate") ? new Date(formData.get("plantedDate") as string) : null,
+    location_lat: formData.get("locationLat") ? parseFloat(formData.get("locationLat") as string) : null,
+    location_lng: formData.get("locationLng") ? parseFloat(formData.get("locationLng") as string) : null,
+    catastro_ref: (formData.get("catastroRef") as string) || null,
+    catastro_url: (formData.get("catastroUrl") as string) || null,
+    planted_date: formData.get("plantedDate") ? new Date(formData.get("plantedDate") as string).toISOString() : null,
     species: (formData.get("species") as string) || null,
-    lastHarvestDate: formData.get("lastHarvestDate") ? new Date(formData.get("lastHarvestDate") as string) : null,
-    lastHarvestProfit: formData.get("lastHarvestProfit") ? String(formData.get("lastHarvestProfit")) : null,
-    rentalPrice: formData.get("rentalPrice") ? String(formData.get("rentalPrice")) : null,
-    tenantName: (formData.get("tenantName") as string) || null,
-    tenantEmail: (formData.get("tenantEmail") as string) || null,
-    tenantPhone: (formData.get("tenantPhone") as string) || null,
-    leaseStart: formData.get("leaseStart") ? new Date(formData.get("leaseStart") as string) : null,
-    leaseEnd: formData.get("leaseEnd") ? new Date(formData.get("leaseEnd") as string) : null,
+    last_harvest_date: formData.get("lastHarvestDate") ? new Date(formData.get("lastHarvestDate") as string).toISOString() : null,
+    last_harvest_profit: formData.get("lastHarvestProfit") ? String(formData.get("lastHarvestProfit")) : null,
+    rental_price: formData.get("rentalPrice") ? String(formData.get("rentalPrice")) : null,
+    tenant_name: (formData.get("tenantName") as string) || null,
+    tenant_email: (formData.get("tenantEmail") as string) || null,
+    tenant_phone: (formData.get("tenantPhone") as string) || null,
+    lease_start: formData.get("leaseStart") ? new Date(formData.get("leaseStart") as string).toISOString() : null,
+    lease_end: formData.get("leaseEnd") ? new Date(formData.get("leaseEnd") as string).toISOString() : null,
     notes: (formData.get("notes") as string) || null,
-  });
+  }).select();
+
+  if (error) throw new Error(error.message);
 
   revalidatePath("/properties");
   redirect("/properties");

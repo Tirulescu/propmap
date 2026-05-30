@@ -1,10 +1,7 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import * as schema from "./schema";
+import { createAdminClient } from "@insforge/sdk";
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL || "https://insforge.tirulescu.com";
+const apiKey = process.env.INSFORGE_API_KEY || "";
 
-export const db = drizzle(pool, { schema });
-export * from "./schema";
+export const insforge = createAdminClient({ baseUrl, apiKey });
+export * from "./types";
