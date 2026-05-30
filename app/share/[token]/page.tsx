@@ -31,7 +31,7 @@ export default async function SharePage({ params }: { params: { token: string } 
       <div className="border rounded p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">{property.name}</h1>
-          <span className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded">{property.type} (Compartido)</span>
+          <span className="text-sm bg-gray-100 text-[#1A1510] px-2 py-1 rounded">{property.type} (Compartido)</span>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
@@ -39,13 +39,13 @@ export default async function SharePage({ params }: { params: { token: string } 
           <div><strong>Catastro:</strong> {property.catastro_ref || "—"}</div>
           {property.catastro_url && (
             <div className="col-span-2">
-              <a href={property.catastro_url} target="_blank" className="text-blue-600 underline">Ver ficha catastral</a>
+              <a href={property.catastro_url} target="_blank" className="text-[#4A6E47] underline">Ver ficha catastral</a>
             </div>
           )}
         </div>
 
         {property.type === "MONTE" && (
-          <div className="border rounded p-4 bg-gray-50 mb-4 text-sm">
+          <div className="border rounded p-4 bg-[#E8DCC4]/30 mb-4 text-sm">
             <h3 className="font-semibold mb-2">Monte</h3>
             <div>Plantado: {property.planted_date ? new Date(property.planted_date).toLocaleDateString() : "—"}</div>
             <div>Especie: {property.species || "—"}</div>
@@ -55,7 +55,7 @@ export default async function SharePage({ params }: { params: { token: string } 
         )}
 
         {(property.type === "PISO" || property.type === "CASA") && (
-          <div className="border rounded p-4 bg-gray-50 mb-4 text-sm">
+          <div className="border rounded p-4 bg-[#E8DCC4]/30 mb-4 text-sm">
             <h3 className="font-semibold mb-2">Alquiler</h3>
             <div>Precio: {property.rental_price ? `€${property.rental_price}/mes` : "—"}</div>
             <div>Inquilino: {property.tenant_name || "—"}</div>
@@ -69,7 +69,7 @@ export default async function SharePage({ params }: { params: { token: string } 
             <div className="border rounded overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-[#E8DCC4]/30">
                     <th className="px-3 py-2">Concepto</th>
                     <th className="px-3 py-2">Tipo</th>
                     <th className="px-3 py-2">Mes</th>
@@ -93,7 +93,7 @@ export default async function SharePage({ params }: { params: { token: string } 
           </div>
         )}
 
-        {property.notes && <p className="mt-4 text-gray-700">{property.notes}</p>}
+        {property.notes && <p className="mt-4 text-[#1A1510]">{property.notes}</p>}
       </div>
     </div>
   );

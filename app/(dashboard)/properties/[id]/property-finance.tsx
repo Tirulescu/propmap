@@ -148,7 +148,7 @@ export default function PropertyFinance({
             className="border rounded w-full px-2 py-1"
           />
         </div>
-        <button type="submit" className="rounded bg-blue-600 px-3 py-1 text-white">
+        <button type="submit" className="rounded bg-[#4A6E47] px-3 py-1 text-white">
           A&ntilde;adir
         </button>
       </form>
@@ -156,7 +156,7 @@ export default function PropertyFinance({
       <div className="border rounded overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50">
+            <tr className="bg-[#E8DCC4]/30">
               <th className="px-3 py-2 text-left">Concepto</th>
               <th className="px-3 py-2 text-left">Tipo</th>
               <th className="px-3 py-2 text-left">Mes</th>

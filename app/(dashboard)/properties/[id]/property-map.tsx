@@ -107,7 +107,7 @@ export default function PropertyMap({ lat, lng, geoPolygon, propertyId }: Proper
     <div>
       <div className="flex gap-2 mb-2">
         {!drawing ? (
-          <button onClick={startDraw} className="rounded bg-blue-600 px-3 py-1 text-white text-sm">
+          <button onClick={startDraw} className="rounded bg-[#4A6E47] px-3 py-1 text-white text-sm">
             Dibujar área
           </button>
         ) : (

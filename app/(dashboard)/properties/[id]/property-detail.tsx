@@ -34,7 +34,7 @@ export default function PropertyDetail({
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{property.name}</h1>
         {isOwner && (
-          <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
+          <span className="text-sm bg-[#E8DCC4] text-[#4A6E47] px-2 py-1 rounded">
             Propietario
           </span>
         )}
@@ -46,7 +46,7 @@ export default function PropertyDetail({
             key={t.key}
             onClick={() => setTab(t.key as any)}
             className={`pb-2 px-2 font-medium ${
-              tab === t.key ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
+              tab === t.key ? "border-b-2 border-[#4A6E47] text-[#4A6E47]" : "text-[#6B5E4E]"
             }`}
           >
             {t.label}
@@ -63,14 +63,14 @@ export default function PropertyDetail({
           <div>
             <strong>Ref. Catastro:</strong> {property.catastroRef || "—"}
             {property.catastroUrl && (
-              <a href={property.catastroUrl} target="_blank" className="ml-2 text-blue-600 underline">
+              <a href={property.catastroUrl} target="_blank" className="ml-2 text-[#4A6E47] underline">
                 Ver en Catastro
               </a>
             )}
           </div>
 
           {property.type === "MONTE" && (
-            <div className="border rounded p-4 bg-gray-50">
+            <div className="border rounded p-4 bg-[#E8DCC4]/30">
               <h3 className="font-semibold mb-2">Datos del Monte</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>Plantado: {property.plantedDate ? new Date(property.plantedDate).toLocaleDateString() : "—"}</div>
@@ -82,7 +82,7 @@ export default function PropertyDetail({
           )}
 
           {(property.type === "PISO" || property.type === "CASA") && (
-            <div className="border rounded p-4 bg-gray-50">
+            <div className="border rounded p-4 bg-[#E8DCC4]/30">
               <h3 className="font-semibold mb-2">Datos de Alquiler</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>Precio: {property.rentalPrice ? `€${property.rentalPrice}/mes` : "—"}</div>
@@ -97,7 +97,7 @@ export default function PropertyDetail({
           {property.notes && (
             <div>
               <strong>Notas:</strong>
-              <p className="mt-1 text-gray-700">{property.notes}</p>
+              <p className="mt-1 text-[#1A1510]">{property.notes}</p>
             </div>
           )}
         </div>
@@ -141,11 +141,11 @@ function SharePanel({ propertyId }: { propertyId: string }) {
   return (
     <div>
       <p className="mb-4">Genera un enlace público para compartir esta propiedad.</p>
-      <button onClick={generateToken} className="rounded bg-blue-600 px-4 py-2 text-white">
+      <button onClick={generateToken} className="rounded bg-[#4A6E47] px-4 py-2 text-white">
         Generar enlace
       </button>
       {token && (
-        <div className="mt-4 p-3 border rounded bg-gray-50">
+        <div className="mt-4 p-3 border rounded bg-[#E8DCC4]/30">
           <p className="text-sm font-mono break-all">{token}</p>
         </div>
       )}

@@ -90,21 +90,21 @@ export default function InsForgePanel({ propertyId }: { propertyId: string }) {
       <section>
         <h3 className="text-lg font-semibold mb-3">Documentos en InsForge</h3>
         <div className="flex flex-col gap-3">
-          <label className="inline-flex items-center gap-2 cursor-pointer rounded border px-4 py-2 hover:bg-gray-50 w-fit">
+          <label className="inline-flex items-center gap-2 cursor-pointer rounded border px-4 py-2 hover:bg-[#E8DCC4]/30 w-fit">
             <input type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
             <span>{uploading ? "Subiendo..." : "+ Subir documento"}</span>
           </label>
 
           {files.length === 0 ? (
-            <p className="text-sm text-gray-500">No hay documentos subidos.</p>
+            <p className="text-sm text-[#6B5E4E]">No hay documentos subidos.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {files.map((f) => (
                 <li key={f.id} className="flex items-center gap-3 border rounded px-3 py-2">
                   <span className="text-sm font-medium">{f.name}</span>
-                  <span className="text-xs text-gray-500">{f.status}</span>
+                  <span className="text-xs text-[#6B5E4E]">{f.status}</span>
                   {f.url && (
-                    <a href={f.url} target="_blank" className="text-xs text-blue-600 underline ml-auto">
+                    <a href={f.url} target="_blank" className="text-xs text-[#4A6E47] underline ml-auto">
                       Ver
                     </a>
                   )}
@@ -126,16 +126,16 @@ export default function InsForgePanel({ propertyId }: { propertyId: string }) {
         {!selectedThread ? (
           <div className="flex flex-col gap-2">
             {threads.length === 0 ? (
-              <p className="text-sm text-gray-500">No hay conversaciones. Crea una para empezar.</p>
+              <p className="text-sm text-[#6B5E4E]">No hay conversaciones. Crea una para empezar.</p>
             ) : (
               threads.map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setSelectedThread(t.id)}
-                  className="text-left rounded border px-3 py-2 hover:bg-gray-50"
+                  className="text-left rounded border px-3 py-2 hover:bg-[#E8DCC4]/30"
                 >
                   <div className="text-sm font-medium">{t.title || "Conversación sin título"}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-[#6B5E4E]">
                     {new Date(t.createdAt).toLocaleDateString()}
                   </div>
                 </button>
@@ -146,7 +146,7 @@ export default function InsForgePanel({ propertyId }: { propertyId: string }) {
           <div className="border rounded p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Chat</span>
-              <button onClick={() => setSelectedThread(null)} className="text-xs text-gray-500">← Volver</button>
+              <button onClick={() => setSelectedThread(null)} className="text-xs text-[#6B5E4E]">← Volver</button>
             </div>
 
             <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">

@@ -110,7 +110,7 @@ export default function PropertyForm() {
         <textarea name="notes" rows={3} className="border rounded w-full px-3 py-2"></textarea>
       </div>
 
-      <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white w-fit">Guardar</button>
+      <button type="submit" className="rounded bg-[#4A6E47] px-4 py-2 text-white w-fit">Guardar</button>
     </form>
   );
 }
