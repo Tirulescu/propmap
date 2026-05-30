@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ink: #1A1510;
+  --color-parchment: #F7F4EF;
+  --color-clay: #B54A35;
+  --color-moss: #4A6E47;
+  --color-sand: #E8DCC4;
+  --color-tint: #C9B99A;
+  --font-display:
+    var(--font-display), "Playfair Display", Georgia, serif;
+  --font-body: var(--font-body), "Crimson Pro", "Times New Roman", serif;
+  --color-background: var(--color-parchment);
+  --color-foreground: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-parchment);
+  color: var(--color-ink);
+  font-family: var(--font-body);
 }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--color-clay);
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-clay);
+  color: var(--color-parchment);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeInUp 0.6s ease both;
+}
+.animate-fade-in-delay-1 { animation-delay: 0.12s; }
+.animate-fade-in-delay-2 { animation-delay: 0.24s; }
+.animate-fade-in-delay-3 { animation-delay: 0.36s; }
