@@ -83,18 +83,15 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await insforge.auth.signInWithOAuth({
         provider: "google",
         redirectTo,
-        skipBrowserRedirect: true,
       });
       if (error) {
         console.error("[signInGoogle] SDK error:", error);
         return { error: error.message || "Error al iniciar Google" };
       }
       if (data?.url) {
-        console.log("[signInGoogle] redirecting to:", data.url);
         window.location.href = data.url;
-        return {};
       }
-      return { error: "No se recibió URL de redirección" }  ;
+      return {};
     } catch (e: any) {
       console.error("[signInGoogle] exception:", e);
       return { error: e.message || "Error inesperado con Google" };
