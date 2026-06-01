@@ -13,6 +13,17 @@ services:
       - "3000"
     networks:
       - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=dokploy-network"
+      - "traefik.http.routers.propmap.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.propmap.entrypoints=websecure"
+      - "traefik.http.routers.propmap.tls.certResolver=letsencrypt"
+      - "traefik.http.services.propmap.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.propmap-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.propmap-http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.propmap-http.entrypoints=web"
+      - "traefik.http.routers.propmap-http.middlewares=propmap-redirect"
 
 networks:
   dokploy-network:
