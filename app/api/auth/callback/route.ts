@@ -3,33 +3,26 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { OAUTH_PKCE_COOKIE, insforgeSessionOptions } from "@/lib/auth-config";
 import { translateAuthError } from "@/lib/auth-errors";
+import { redirectTo } from "@/lib/request-origin";
 
 export async function GET(req: NextRequest) {
   const error = req.nextUrl.searchParams.get("error");
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/login?error=${encodeURIComponent(error)}`, req.url)
-    );
+    return redirectTo(req, "/login", { error });
   }
 
   const code = req.nextUrl.searchParams.get("insforge_code");
   if (!code) {
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=${encodeURIComponent(translateAuthError("no_session"))}`,
-        req.url
-      )
-    );
+    return redirectTo(req, "/login", {
+      error: translateAuthError("no_session"),
+    });
   }
 
   const verifier = req.cookies.get(OAUTH_PKCE_COOKIE)?.value;
   if (!verifier) {
-    return NextResponse.redirect(
-      new URL(
-        `/login?error=${encodeURIComponent(translateAuthError("PKCE_VERIFIER_MISSING"))}`,
-        req.url
-      )
-    );
+    return redirectTo(req, "/login", {
+      error: translateAuthError("PKCE_VERIFIER_MISSING"),
+    });
   }
 
   const client = createServerClient({
@@ -40,12 +33,9 @@ export async function GET(req: NextRequest) {
   const { data, error: exchangeError } = await client.auth.exchangeOAuthCode(code, verifier);
 
   if (exchangeError || !data?.accessToken || !data.user) {
-    const response = NextResponse.redirect(
-      new URL(
-        `/login?error=${encodeURIComponent(translateAuthError(exchangeError || "no_session"))}`,
-        req.url
-      )
-    );
+    const response = redirectTo(req, "/login", {
+      error: translateAuthError(exchangeError || "no_session"),
+    });
     response.cookies.set({
       name: OAUTH_PKCE_COOKIE,
       value: "",
@@ -58,7 +48,7 @@ export async function GET(req: NextRequest) {
     return response;
   }
 
-  const response = NextResponse.redirect(new URL("/properties", req.url));
+  const response = redirectTo(req, "/properties");
   setAuthCookies(response.cookies, {
     accessToken: data.accessToken,
     refreshToken: data.refreshToken ?? null,
