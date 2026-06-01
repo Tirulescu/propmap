@@ -15,9 +15,6 @@ export function getPublicOrigin(req: NextRequest): string {
     return `${proto}://${host}`;
   }
 
-  const appUrl = process.env.APP_URL?.replace(/\/$/, "");
-  if (appUrl) return appUrl;
-
   return req.nextUrl.origin;
 }
 
