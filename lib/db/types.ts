@@ -1,13 +1,5 @@
 export type PropertyType = "MONTE" | "PRADO" | "CASA" | "PISO" | "TERRENO" | "FINCA";
 
-export interface DbUser {
-  id: string;
-  email: string;
-  name: string | null;
-  image?: string | null;
-  created_at: string;
-}
-
 export interface DbProperty {
   id: string;
   owner_id: string;
@@ -36,6 +28,14 @@ export interface DbProperty {
   updated_at: string;
 }
 
+export interface DbPropertyHistory {
+  id: string;
+  property_id: string;
+  event_date: string;
+  content: string;
+  created_at: string;
+}
+
 export interface DbProjection {
   id: string;
   property_id: string;
@@ -48,6 +48,16 @@ export interface DbProjection {
   created_at: string;
 }
 
+export interface DbPropertyPhoto {
+  id: string;
+  property_id: string;
+  name: string;
+  url: string;
+  photo_date: string;
+  type: string | null;
+  created_at: string;
+}
+
 export interface DbDocument {
   id: string;
   property_id: string;
@@ -57,12 +67,14 @@ export interface DbDocument {
   created_at: string;
 }
 
+export type ShareRole = "VIEWER" | "EDITOR";
+
 export interface DbPropertyShare {
   id: string;
   property_id: string;
   shared_by_id: string;
-  token: string;
-  role: string;
+  shared_with_email: string;
+  role: ShareRole;
   expires_at: string | null;
   created_at: string;
 }

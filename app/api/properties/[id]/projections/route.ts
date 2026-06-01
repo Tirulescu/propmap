@@ -1,18 +1,37 @@
 import { NextRequest } from "next/server";
-import { insforge } from "@/lib/db";
 import { nanoid } from "nanoid";
-import { getSession } from "@/lib/insforge-server";
+import { requirePropertyAccess } from "@/lib/property-api-auth";
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const auth = await requirePropertyAccess(id, "view");
+  if (!auth.ok) return auth.response;
+
+  const { data, error } = await auth.db
+    .from("projections")
+    .select("*")
+    .eq("property_id", id)
+    .order("year", { ascending: false });
+
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+  return Response.json(data || []);
+}
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getSession();
-  if (!session?.user) return new Response("Unauthorized", { status: 401 });
-
   const { id } = await params;
+  const auth = await requirePropertyAccess(id, "edit");
+  if (!auth.ok) return auth.response;
+
   const body = await req.json();
-  const { error } = await insforge.database.from("projections").insert({
+  const { error } = await auth.db.from("projections").insert({
     id: nanoid(12),
     property_id: id,
     year: body.year ?? new Date().getFullYear(),

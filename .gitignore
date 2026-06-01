@@ -22,7 +22,26 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+
+# otros gestores de paquetes (el proyecto usa pnpm)
+package-lock.json
+yarn.lock
+
+# artefactos temporales de pnpm
+_tmp_*
+
+# cachés de compilación
+.swc/
+
+# IDE / editores
+.cursor/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
 
 # debug
 npm-debug.log*
@@ -32,6 +51,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel

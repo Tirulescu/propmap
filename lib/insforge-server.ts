@@ -1,47 +1,71 @@
-/**
- * Server-side auth helper for InsForge.
- * Reads the access-token cookie and decodes the JWT to get the current user.
- */
+import { createServerClient } from "@insforge/sdk/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
+import { mapInsforgeUser, type SessionUser } from "@/lib/auth-user";
+import { insforgeSessionOptions } from "@/lib/auth-config";
 
-const INSFORGE_URL = process.env.NEXT_PUBLIC_INSFORGE_URL || "https://insforge.tirulescu.com";
+export type InsforgeServerClient = ReturnType<typeof createServerClient>;
 
-async function verifyToken(token: string) {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return null;
+export type AuthContext = {
+  client: InsforgeServerClient;
+  user: SessionUser;
+  token: string;
+};
 
-    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
-    if (!payload.sub) return null;
-    if (payload.exp && payload.exp * 1000 < Date.now()) return null;
+export type AuthSession = {
+  user: SessionUser;
+  token: string;
+};
 
-    return payload as {
-      sub: string;
-      email?: string;
-      name?: string;
-      role?: string;
-      [k: string]: any;
-    };
-  } catch {
-    return null;
-  }
-}
+export type DatabaseClient = InsforgeServerClient["database"];
 
-export async function getSession() {
+/** Una sola validación de sesión por petición (React cache). */
+const loadAuthContext = cache(async (): Promise<AuthContext | null> => {
   const cookieStore = await cookies();
   const token = cookieStore.get("insforge_access_token")?.value;
   if (!token) return null;
 
-  const payload = await verifyToken(token);
-  if (!payload) return null;
+  const client = createServerClient({
+    ...insforgeSessionOptions,
+    cookies: cookieStore,
+  });
+
+  const { data, error } = await client.auth.getCurrentUser();
+  if (error || !data?.user) return null;
 
   return {
-    user: {
-      id: payload.sub,
-      email: payload.email || "",
-      name: payload.name || payload.email || "",
-      role: payload.role || "authenticated",
-    },
+    client,
+    user: mapInsforgeUser(data.user),
     token,
   };
+});
+
+/** Cliente InsForge con sesión del usuario (JWT en cookies). */
+export async function getAuthenticatedClient(): Promise<InsforgeServerClient | null> {
+  const ctx = await loadAuthContext();
+  return ctx?.client ?? null;
+}
+
+/** Sesión del usuario actual. */
+export async function getSession(): Promise<AuthSession | null> {
+  const ctx = await loadAuthContext();
+  if (!ctx) return null;
+  return { user: ctx.user, token: ctx.token };
+}
+
+/** Acceso a Postgres vía InsForge con RLS del usuario actual. */
+export async function getDatabase(): Promise<DatabaseClient> {
+  const ctx = await loadAuthContext();
+  if (!ctx) throw new Error("No autenticado");
+  return ctx.client.database;
+}
+
+/** Contexto completo (cliente + usuario) o null. Memoizado por petición. */
+export const getAuthContext = loadAuthContext;
+
+/** Contexto completo (cliente + usuario). Lanza si no hay sesión. */
+export async function requireAuthContext(): Promise<AuthContext> {
+  const ctx = await loadAuthContext();
+  if (!ctx) throw new Error("No autenticado");
+  return ctx;
 }
